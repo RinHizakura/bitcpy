@@ -81,7 +81,7 @@ void bitcpy(void *_dest,      /* Address of the buffer to write to */
             size_t _read,     /* Bit offset to start reading from */
             size_t _count)
 {
-    uint8_t data, original, mask;
+    uint8_t data, original;
     size_t bitsize;
     size_t read_lhs = _read & 7;
     size_t read_rhs = 8 - read_lhs;
@@ -118,34 +118,16 @@ void bitcpy(void *_dest,      /* Address of the buffer to write to */
     while (_count > 0) {
         data = *source++;
         bitsize = (_count > 8) ? 8 : _count;
-        if (read_lhs > 0) {
-            data <<= read_lhs;
-            if (bitsize > read_rhs)
-                data |= (*source >> read_rhs);
-        }
+        data <<= read_lhs;
+        data |= (bitsize > read_rhs) ? (*source >> read_rhs) : 0;
 
         data &= read_mask[bitsize];
-
         original = *dest;
-        if (write_lhs > 0) {
-            mask = read_mask[write_lhs];
-            if (bitsize > write_rhs) {
-                *dest++ = (original & mask) | (data >> write_lhs);
-                *(dest) = (*dest & write_mask[bitsize - write_rhs]) |
-                          (data << write_rhs);
-            } else {
-                /*
-                        if (bitsize > write_lhs)
-                            mask |= write_mask[8 - (bitsize - write_lhs)];*/
-
-                mask |= write_mask[8 - (write_rhs - bitsize)];
-                *dest++ = (original & mask) | (data >> write_lhs);
-            }
-        } else {
-            if (bitsize < 8)
-                data = data | (original & write_mask[bitsize]);
-            *dest++ = data;
-        }
+        int idx = bitsize > write_rhs ? 8 : 8 - (write_rhs - bitsize);
+        *dest++ = (original & (read_mask[write_lhs] | write_mask[idx])) |
+                  (data >> write_lhs);
+        idx = bitsize < write_rhs ? 0 : bitsize - write_rhs;
+        *(dest) = (*dest & write_mask[idx]) | (data << write_rhs);
 
         _count -= bitsize;
     }
