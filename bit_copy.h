@@ -6,12 +6,18 @@ void bitcpy_ori(void *_dest,
                 const void *_src,
                 size_t _read,
                 size_t _count);
+
+void bitcpy_naive(void *_dest,
+                  size_t _write,
+                  const void *_src,
+                  size_t _read,
+                  size_t _count);
+
 void bitcpy(void *_dest,
             size_t _write,
             const void *_src,
             size_t _read,
             size_t _count);
-
 
 static inline void dump_8bits(uint8_t _data)
 {
