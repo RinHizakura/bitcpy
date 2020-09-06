@@ -6,6 +6,11 @@ ifeq ("$(ORI)","1")
 	COPS += -DORI
 endif
 
+ifeq ("$(NAIVE)","1")
+	COPS += -DNAIVE
+endif
+
+
 all: $(GIT_HOOKS) exec
 clean: 
 	rm -rf $(BUILD_DIR) exec

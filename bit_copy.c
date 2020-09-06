@@ -123,21 +123,23 @@ void bitcpy(void *_dest,      /* Address of the buffer to write to */
 
     if (write_lhs != 0 && _count >= write_rhs) {
         bitcpy_naive(_dest, _write, _src, _read, write_rhs);
+
+        if (write_rhs > read_rhs)
+            source++;
+
         _write += write_rhs;
         _read += write_rhs;
         _count -= write_rhs;
 
+        source = source + (_read / 8);
+        dest++;
+
         read_lhs = _read & 7;
         read_rhs = 8 - read_lhs;
 
-        if (write_rhs > read_rhs) {
-            source++;
-        }
-
-        source = source + (_read / 8);
-        write_lhs = _write & 7;
-        write_rhs = 8 - write_lhs;
-        dest++;
+        /* No update is ok because we dont need this after
+            write_lhs = _write & 7;
+            write_rhs = 8 - write_lhs; */
     }
 
 
@@ -150,5 +152,6 @@ void bitcpy(void *_dest,      /* Address of the buffer to write to */
         source++;
     }
 
-    bitcpy_naive(_dest, _write + iter * 8, _src, _read + iter * 8, _count);
+    bitcpy_naive(_dest, _write + (iter << 3), _src, _read + (iter << 3),
+                 _count);
 }
