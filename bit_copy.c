@@ -131,7 +131,6 @@ void bitcpy(void *_dest,      /* Address of the buffer to write to */
         _read += write_rhs;
         _count -= write_rhs;
 
-        source = source + (_read / 8);
         dest++;
 
         read_lhs = _read & 7;
